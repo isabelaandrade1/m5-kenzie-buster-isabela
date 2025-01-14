@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
 
+# Função para a página inicial
 def home(request):
     return HttpResponse("Bem-vindo à API do Kenzie Buster!")
 
@@ -25,5 +26,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),  # Rotas do app users
     path('api/movies/', include('movies.urls')),  # Rotas do app movies
+    path('api/movies-orders/', include('movies_orders.urls')),  # Rotas do app movies_orders
     path('', home),  # Página inicial
 ]
