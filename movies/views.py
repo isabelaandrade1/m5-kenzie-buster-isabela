@@ -1,6 +1,7 @@
 from rest_framework.views import APIView, Request, Response, status
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import LimitOffsetPagination  # Substituindo o _core.pagination
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.shortcuts import get_object_or_404
 
@@ -9,27 +10,18 @@ from .models import Movie
 from movies.permissions import IsEmployeeOrReadOnly
 
 
-class CustomLimitOffsetPagination(LimitOffsetPagination):  # Classe de paginação customizada
-    default_limit = 10
-    max_limit = 100
+class CustomPageNumberPagination(PageNumberPagination):  # Paginação customizada
+    page_size = 2  # Quantidade de filmes por página
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
-class MovieView(APIView, CustomLimitOffsetPagination):
-
+class MovieView(ListAPIView):  # View genérica para listagem com paginação
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    pagination_class = CustomPageNumberPagination
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsEmployeeOrReadOnly]
-    
-    def post(self, req: Request) -> Response:
-        serializer = MovieSerializer(data=req.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=req.user)
-        return Response(serializer.data, status.HTTP_201_CREATED)
-
-    def get(self, req: Request) -> Response:
-        movies = Movie.objects.all()
-        pages = self.paginate_queryset(movies, req, view=self)
-        serializer = MovieSerializer(pages, many=True)
-        return self.get_paginated_response(serializer.data)
 
 
 class MovieDetailView(APIView):
