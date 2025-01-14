@@ -23,6 +23,7 @@ def home(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('users.urls')),
+    path('api/users/', include('users.urls')),  # Rotas do app users
+    path('api/movies/', include('movies.urls')),  # Rotas do app movies
     path('', home),  # Página inicial
 ]
